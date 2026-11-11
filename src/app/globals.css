@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #f6efe0;
+  --color-cream-deep: #ebe0c8;
+  --color-sage: #a9b8a0;
+  --color-sage-deep: #7f9378;
+  --color-mist: #aebfcc;
+  --color-mist-deep: #7f97a9;
+  --color-wood: #c9a27a;
+  --color-wood-deep: #8a6445;
+  --color-ink: #5a4636;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--color-ink);
+  background: var(--color-cream);
+  font-family: ui-rounded, "Hiragino Maru Gothic ProN", "PingFang TC",
+    "Noto Sans TC", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-storybook {
+  font-family: Georgia, "Noto Serif TC", "Songti TC", serif;
+}
+
+/* 紙張質感的卡片：柔和外陰影 + 內側高光 */
+.paper-card {
+  background: color-mix(in srgb, var(--color-cream) 92%, white);
+  border: 1.5px solid color-mix(in srgb, var(--color-wood) 45%, transparent);
+  box-shadow:
+    0 6px 18px -6px color-mix(in srgb, var(--color-wood-deep) 35%, transparent),
+    inset 0 1px 0 rgb(255 255 255 / 0.7);
+}
