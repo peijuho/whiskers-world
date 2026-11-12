@@ -1,5 +1,6 @@
 import { createStore } from "./createStore";
 import { GAME_MINUTES_PER_SECOND, type Speed } from "./gameClock";
+import { blend, isWeatherId, stepWeatherBlend, type WeatherId, type WeatherMode } from "./weather";
 import { getSettings, settingsActions, type LampMode } from "./settingsStore";
 
 /**
@@ -12,9 +13,11 @@ export interface EnvState {
   readonly paused: boolean;
   readonly speed: Speed;
   readonly lampMode: LampMode;
+  readonly weather: WeatherId;
+  readonly weatherMode: WeatherMode;
 }
 
-const store = createStore<EnvState>({ hour: 9, paused: false, speed: 1, lampMode: "auto" });
+const store = createStore<EnvState>({ hour: 9, paused: false, speed: 1, lampMode: "auto", weather: "sunny", weatherMode: "manual" });
 
 export const useEnv = store.use;
 export const getEnv = store.get;
@@ -24,15 +27,21 @@ export const environmentActions = {
   /** 由 settingsStore 載入存檔後呼叫 */
   hydrate() {
     const s = getSettings();
-    store.set({ hour: s.clockHour, paused: s.clockPaused, speed: s.clockSpeed, lampMode: s.lampMode });
+    store.set({
+      hour: s.clockHour, paused: s.clockPaused, speed: s.clockSpeed, lampMode: s.lampMode,
+      weather: s.weather, weatherMode: s.weatherMode,
+    });
+    stepWeatherBlend(s.weather, 0, true); // 載入時直接套用，不做過渡
   },
 
-  /** 以 delta time（秒）推進時間 */
-  tick(dtSeconds: number) {
-    const { paused, speed, hour } = store.get();
-    if (paused) return;
+  /** 以 delta time（秒）推進時間與天氣過渡；回傳是否需要重繪 */
+  tick(dtSeconds: number): boolean {
+    const { paused, speed, hour, weather } = store.get();
+    const weatherMoving = stepWeatherBlend(weather, dtSeconds);
+    if (paused) return weatherMoving;
     const advance = (dtSeconds * speed * GAME_MINUTES_PER_SECOND) / 60;
     store.set({ hour: (hour + advance) % 24 });
+    return true;
   },
 
   setHour(hour: number) {
@@ -56,6 +65,17 @@ export const environmentActions = {
     settingsActions.update({ lampMode });
   },
 
+  setWeather(weather: WeatherId) {
+    if (!isWeatherId(weather)) return;
+    store.set({ weather });
+    settingsActions.update({ weather });
+  },
+
+  setWeatherMode(weatherMode: WeatherMode) {
+    store.set({ weatherMode });
+    settingsActions.update({ weatherMode });
+  },
+
   persistHour() {
     settingsActions.update({ clockHour: store.get().hour });
   },
@@ -65,3 +85,5 @@ export const environmentActions = {
 export function lampLevel(autoLamp: number, mode: LampMode): number {
   return mode === "on" ? 1 : mode === "off" ? 0 : autoLamp;
 }
+
+export { blend as weatherBlend };

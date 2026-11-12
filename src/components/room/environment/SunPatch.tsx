@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { AdditiveBlending, CanvasTexture, type Mesh, type MeshBasicMaterial } from "three";
-import { getEnv } from "@/game/environmentStore";
+import { getEnv, weatherBlend } from "@/game/environmentStore";
 import { createLightingState, sampleLighting, sunPatchTransform } from "@/game/lighting";
 
 function makePatchTexture() {
@@ -27,7 +27,7 @@ export function SunPatch() {
   useEffect(() => () => tex.dispose(), [tex]);
 
   useFrame(() => {
-    sampleLighting(getEnv().hour, state);
+    sampleLighting(getEnv().hour, state, weatherBlend);
     const m = mesh.current;
     const material = mat.current;
     if (!m || !material) return;

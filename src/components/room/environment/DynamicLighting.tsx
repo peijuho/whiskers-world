@@ -1,7 +1,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Color, type AmbientLight, DirectionalLight, HemisphereLight, PointLight } from "three";
-import { getEnv } from "@/game/environmentStore";
+import { getEnv, weatherBlend } from "@/game/environmentStore";
 import { createLightingState, sampleLighting } from "@/game/lighting";
 
 /**
@@ -20,7 +20,7 @@ export function DynamicLighting() {
   );
 
   useFrame(() => {
-    sampleLighting(getEnv().hour, state);
+    sampleLighting(getEnv().hour, state, weatherBlend);
     if (amb.current) {
       amb.current.color.copy(state.ambColor);
       amb.current.intensity = state.ambIntensity;

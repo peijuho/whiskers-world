@@ -11,6 +11,7 @@ import {
 import { settingsActions, useSettings } from "@/game/settingsStore";
 import { Chip, Label, Swatch } from "./controls";
 import { FurnitureTab } from "./FurniturePanel";
+import { AudioTab, WeatherTab } from "./EnvironmentTabs";
 import { LightingTab } from "./LightingTab";
 
 const TABS = [
@@ -18,6 +19,8 @@ const TABS = [
   { id: "floor", label: "地板" },
   { id: "furniture", label: "家具" },
   { id: "light", label: "燈光" },
+  { id: "weather", label: "天氣" },
+  { id: "audio", label: "音效" },
 ] as const;
 type TabId = (typeof TABS)[number]["id"];
 
@@ -107,6 +110,8 @@ export function DecorPanel() {
       {tab === "floor" && <FloorTab />}
       {tab === "furniture" && <FurnitureTab />}
       {tab === "light" && <LightingTab />}
+      {tab === "weather" && <WeatherTab />}
+      {tab === "audio" && <AudioTab />}
     </section>
   );
 }

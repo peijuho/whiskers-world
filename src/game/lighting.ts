@@ -46,7 +46,13 @@ export interface WeatherFactors {
   readonly sun: number;
   /** 環境光倍率 */
   readonly amb: number;
+  /** 天空染色強度與顏色（可省略） */
+  readonly skyMix?: number;
+  readonly tint?: Color;
 }
+
+const COOL = new Color("#dfe7ee");
+const tintTmp = new Color();
 
 export interface LightingState {
   sunColor: Color;
@@ -104,6 +110,16 @@ export function sampleLighting(
   out.ambIntensity = lerp(a.ambI, b.ambI) * weather.amb;
   out.hemiIntensity = lerp(a.hemiI, b.hemiI) * weather.amb;
   out.lamp = lerp(a.lamp, b.lamp);
+  const mix = weather.skyMix ?? 0;
+  if (mix > 0.001 && weather.tint) {
+    // 以目前天色的亮度縮放天氣色，夜晚的雨雲不會變亮
+    const lumS = out.sky.r * 0.3 + out.sky.g * 0.59 + out.sky.b * 0.11;
+    const lumT = Math.max(weather.tint.r * 0.3 + weather.tint.g * 0.59 + weather.tint.b * 0.11, 0.05);
+    tintTmp.copy(weather.tint).multiplyScalar(Math.min(1, lumS / lumT));
+    out.sky.lerp(tintTmp, mix);
+    out.ambColor.lerp(COOL, mix * 0.3);
+    out.sunColor.lerp(COOL, mix * 0.4);
+  }
   out.arc = day ? (hour - 6) / 12 : ((hour - 18 + 24) % 24) / 12;
   out.elevation = Math.sin(Math.PI * out.arc);
   out.sunPatch = day ? Math.min(Math.max((lerp(a.sunI, b.sunI) - 0.5) / 1.6, 0), 1) * weather.sun : 0;

@@ -1,5 +1,6 @@
 import { createStore } from "./createStore";
 import { isSpeed, type Speed } from "./gameClock";
+import { isWeatherId, isWeatherMode, type WeatherId, type WeatherMode } from "./weather";
 import { isStyleId, type StyleId } from "./furnitureStyles";
 import { loadSave, patchSave } from "./persistence";
 import {
@@ -27,6 +28,13 @@ export interface Settings {
   readonly clockPaused: boolean;
   readonly clockSpeed: Speed;
   readonly lampMode: LampMode;
+  /** 天氣與音效偏好 */
+  readonly weather: WeatherId;
+  readonly weatherMode: WeatherMode;
+  readonly audioMaster: number;
+  readonly audioMuted: boolean;
+  readonly audioAmbient: boolean;
+  readonly audioRain: number;
 }
 
 export type LampMode = "auto" | "on" | "off";
@@ -43,7 +51,16 @@ export const DEFAULT_SETTINGS: Settings = {
   clockPaused: false,
   clockSpeed: 1,
   lampMode: "auto",
+  weather: "sunny",
+  weatherMode: "manual",
+  audioMaster: 0.6,
+  audioMuted: false,
+  audioAmbient: true,
+  audioRain: 0.7,
 };
+
+const unit = (v: unknown, fallback: number) =>
+  typeof v === "number" && Number.isFinite(v) ? Math.min(Math.max(v, 0), 1) : fallback;
 
 /** 驗證任意資料；缺漏或不合法的欄位退回預設值 */
 export function sanitizeSettings(raw: unknown): Settings {
@@ -68,6 +85,12 @@ export function sanitizeSettings(raw: unknown): Settings {
     clockPaused: typeof r.clockPaused === "boolean" ? r.clockPaused : DEFAULT_SETTINGS.clockPaused,
     clockSpeed: isSpeed(r.clockSpeed) ? r.clockSpeed : DEFAULT_SETTINGS.clockSpeed,
     lampMode: (LAMP_MODES as readonly unknown[]).includes(r.lampMode) ? (r.lampMode as LampMode) : DEFAULT_SETTINGS.lampMode,
+    weather: isWeatherId(r.weather) ? r.weather : DEFAULT_SETTINGS.weather,
+    weatherMode: isWeatherMode(r.weatherMode) ? r.weatherMode : DEFAULT_SETTINGS.weatherMode,
+    audioMaster: unit(r.audioMaster, DEFAULT_SETTINGS.audioMaster),
+    audioMuted: typeof r.audioMuted === "boolean" ? r.audioMuted : DEFAULT_SETTINGS.audioMuted,
+    audioAmbient: typeof r.audioAmbient === "boolean" ? r.audioAmbient : DEFAULT_SETTINGS.audioAmbient,
+    audioRain: unit(r.audioRain, DEFAULT_SETTINGS.audioRain),
   };
 }
 
