@@ -1,7 +1,7 @@
 import { memo } from "react";
 import { useRoomStore } from "@/game/roomStore";
 import { DragController } from "./DragController";
-import { Kitten } from "./cat/Kitten";
+import { CatController } from "./cat/CatController";
 import { PlacedItem } from "./PlacedItem";
 import { RoomShell } from "./RoomShell";
 import { DynamicLighting } from "./environment/DynamicLighting";
@@ -22,7 +22,7 @@ function RoomSceneBase() {
       <RoomShell />
       {hydrated &&
         items.map((item) => <PlacedItem key={item.id} item={item} />)}
-      <Kitten position={[0.6, 0.035, 0.9]} rotation={[0, 0.6, 0]} />
+      <CatController />
       <DragController />
     </>
   );

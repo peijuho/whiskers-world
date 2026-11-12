@@ -21,6 +21,8 @@ export const FURNITURE_TYPES = [
   "rug",
   "round-rug",
   "cat-bowl",
+  "cardboard-box",
+  "cat-toy",
 ] as const;
 export type FurnitureType = (typeof FURNITURE_TYPES)[number];
 
@@ -89,6 +91,8 @@ export const FURNITURE_CATALOG: Readonly<Record<FurnitureType, FurnitureDef>> = 
   rug: def("rug", "橢圓地毯", "decor", 3.6, 2.5, palette.mist, { solid: false }),
   "round-rug": def("round-rug", "圓地毯", "decor", 1.6, 1.6, palette.sage, { solid: false }),
   "cat-bowl": def("cat-bowl", "貓碗", "decor", 0.4, 0.3, palette.mistDeep),
+  "cardboard-box": def("cardboard-box", "紙箱", "cat", 0.8, 0.7, "#d2b48c"),
+  "cat-toy": def("cat-toy", "逗貓玩具", "cat", 0.5, 0.4, palette.sage, { solid: false }),
 };
 
 export const MAX_ITEMS = 24;

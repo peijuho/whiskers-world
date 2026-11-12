@@ -144,6 +144,11 @@ export const roomActions = {
     set({ items, hydrated: true });
   },
 
+  /** 顯示一則短提示（給場景內的互動使用） */
+  notify(text: string, tone: Notice["tone"] = "ok") {
+    notice(text, tone);
+  },
+
   setMode(mode: Mode) {
     if (mode === "view") {
       set({ mode, panelOpen: false, selectedId: null, draft: null });

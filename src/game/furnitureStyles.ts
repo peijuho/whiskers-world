@@ -100,5 +100,5 @@ export const STYLE_AFFINITY: Readonly<Record<FurnitureType, readonly StyleId[]>>
   sofa: [S, P, M], beanbag: [P, M], "cat-tree": ALL, "cat-steps": [S, P, M],
   "cat-scratcher": ALL, bookshelf: [S, J, C, M], wardrobe: [S, J, C, M],
   "floor-lamp": [S, J, P, M], plant: [S, J, C], "big-plant": [S, C, M],
-  rug: [S, J, P, C], "round-rug": [S, P, C], "cat-bowl": ALL,
+  rug: [S, J, P, C], "round-rug": [S, P, C], "cat-bowl": ALL, "cardboard-box": ALL, "cat-toy": ALL,
 };
