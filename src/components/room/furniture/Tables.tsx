@@ -1,11 +1,13 @@
 import { memo } from "react";
 import { RoundedBox } from "@react-three/drei";
-import { MATTE, palette } from "../palette";
+import { MATTE } from "../palette";
+import { useStylePalette } from "../useStylePalette";
 
 const M = ({ c }: { c: string }) => <meshStandardMaterial color={c} {...MATTE} />;
 
 /** 圓茶几 0.9 × 0.9 */
 function CoffeeTableBase() {
+  const palette = useStylePalette();
   return (
     <group>
       <mesh position={[0, 0.02, 0]} receiveShadow>
@@ -30,6 +32,7 @@ function CoffeeTableBase() {
 
 /** 床頭櫃 0.5 × 0.45：正面朝 +z */
 function NightstandBase() {
+  const palette = useStylePalette();
   return (
     <group>
       <RoundedBox args={[0.5, 0.5, 0.45]} radius={0.05} position={[0, 0.3, 0]} castShadow receiveShadow>

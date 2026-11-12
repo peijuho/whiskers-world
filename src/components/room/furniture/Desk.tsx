@@ -1,6 +1,8 @@
 import { memo } from "react";
 import { RoundedBox } from "@react-three/drei";
-import { MATTE, palette } from "../palette";
+import { MATTE } from "../palette";
+import { useLampGlow } from "../environment/useLampGlow";
+import { useStylePalette } from "../useStylePalette";
 
 const LEG_POSITIONS: ReadonlyArray<readonly [number, number]> = [
   [-0.7, -0.32],
@@ -11,6 +13,8 @@ const LEG_POSITIONS: ReadonlyArray<readonly [number, number]> = [
 
 /** 小書桌，附書本、馬克杯與小檯燈。 */
 function DeskBase() {
+  const palette = useStylePalette();
+  const glow = useLampGlow();
   return (
     <group>
       <RoundedBox
@@ -66,7 +70,7 @@ function DeskBase() {
         <meshStandardMaterial
           color={palette.cream}
           emissive="#ffd9a0"
-          emissiveIntensity={0.55}
+          emissiveIntensity={0.08 + 0.9 * glow}
           roughness={1}
         />
       </mesh>

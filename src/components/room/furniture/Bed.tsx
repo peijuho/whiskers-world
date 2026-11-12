@@ -1,9 +1,11 @@
 import { memo } from "react";
 import { RoundedBox } from "@react-three/drei";
-import { MATTE, palette } from "../palette";
+import { MATTE } from "../palette";
+import { useStylePalette } from "../useStylePalette";
 
 /** 圓潤小床：床頭朝 -z（靠後牆），貼著左牆。 */
 function BedBase() {
+  const palette = useStylePalette();
   return (
     <group>
       {/* 床架 */}

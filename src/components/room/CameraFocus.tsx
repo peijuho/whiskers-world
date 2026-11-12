@@ -1,6 +1,7 @@
-import { useEffect } from "react";
-import { useThree } from "@react-three/fiber";
+import { useEffect, useRef } from "react";
+import { useFrame, useThree } from "@react-three/fiber";
 import { Vector3 } from "three";
+import { brain } from "@/game/catRuntime";
 import { useRoomStore, type Focus } from "@/game/roomStore";
 
 interface OrbitLike {
@@ -55,6 +56,19 @@ const VIEWS: Record<Focus, View> = {
   },
 };
 
+/** 近看小貓：鏡頭跟著小貓目前的位置 */
+const CAT_OFFSET = new Vector3(1.15, 0.45, 1.35);
+const CAT_LOOK = new Vector3(0, 0.32, 0);
+function currentView(focus: Focus): View {
+  if (focus === "room") return VIEWS.room;
+  const c = new Vector3(brain.x, brain.y, brain.z);
+  return {
+    position: c.clone().add(CAT_OFFSET),
+    target: c.clone().add(CAT_LOOK),
+    limits: VIEWS.cat.limits,
+  };
+}
+
 const DURATION = 700;
 const ease = (t: number) => 1 - Math.pow(1 - t, 3);
 
@@ -62,11 +76,28 @@ const ease = (t: number) => 1 - Math.pow(1 - t, 3);
 export function CameraFocus() {
   const get = useThree((s) => s.get);
   const focus = useRoomStore((s) => s.focus);
+  /** 鏡頭移動完成後，持續跟隨小貓 */
+  const follow = useRef<Vector3 | null>(null);
+
+  useFrame(() => {
+    const f = follow.current;
+    const { controls } = get();
+    if (!f || !isOrbit(controls)) return;
+    const dx = brain.x - f.x;
+    const dy = brain.y - f.y;
+    const dz = brain.z - f.z;
+    if (dx === 0 && dy === 0 && dz === 0) return;
+    f.set(brain.x, brain.y, brain.z);
+    get().camera.position.add(new Vector3(dx, dy, dz));
+    controls.target.add(new Vector3(dx, dy, dz));
+    controls.update();
+  });
 
   useEffect(() => {
+    follow.current = null;
     const { camera, controls, invalidate } = get();
     if (!isOrbit(controls)) return;
-    const view = VIEWS[focus];
+    const startFocus = focus;
     const fromPos = camera.position.clone();
     const fromTarget = controls.target.clone();
     // 移動期間先解除限制，避免被夾回舊範圍
@@ -84,12 +115,16 @@ export function CameraFocus() {
     const step = (now: number) => {
       const t = Math.min((now - start) / DURATION, 1);
       const k = ease(t);
+      const view = currentView(startFocus);
       camera.position.lerpVectors(fromPos, view.position, k);
       controls.target.lerpVectors(fromTarget, view.target, k);
       controls.update();
       invalidate();
       if (t < 1) raf = requestAnimationFrame(step);
-      else Object.assign(controls, view.limits);
+      else {
+        Object.assign(controls, view.limits);
+        if (startFocus === "cat") follow.current = new Vector3(brain.x, brain.y, brain.z);
+      }
     };
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);

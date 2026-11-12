@@ -1,14 +1,16 @@
 import { memo } from "react";
 import { RoundedBox } from "@react-three/drei";
-import { MATTE, palette } from "../palette";
+import { MATTE } from "../palette";
+import { useStylePalette } from "../useStylePalette";
 
 const M = ({ c }: { c: string }) => <meshStandardMaterial color={c} {...MATTE} />;
 
-const BOOK_COLORS = [palette.mist, palette.sage, palette.cream, palette.mistDeep, palette.woodLight] as const;
 const SHELVES = [0.06, 0.5, 0.94, 1.38, 1.76] as const;
 
 /** 書櫃 1.0 × 0.35，高 1.8：正面朝 +z */
 function BookshelfBase() {
+  const palette = useStylePalette();
+  const BOOK_COLORS = [palette.mist, palette.sage, palette.cream, palette.mistDeep, palette.woodLight];
   return (
     <group>
       {[-0.475, 0.475].map((x) => (
@@ -47,6 +49,7 @@ function BookshelfBase() {
 
 /** 衣櫃 1.2 × 0.6，高 1.9：正面朝 +z */
 function WardrobeBase() {
+  const palette = useStylePalette();
   return (
     <group>
       <RoundedBox args={[1.2, 1.9, 0.6]} radius={0.06} position={[0, 0.95, 0]} castShadow receiveShadow>

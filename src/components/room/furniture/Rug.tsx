@@ -1,8 +1,10 @@
 import { memo } from "react";
-import { MATTE, palette } from "../palette";
+import { MATTE } from "../palette";
+import { useStylePalette } from "../useStylePalette";
 
 /** 橢圓地毯：霧藍外圈 + 奶油白內圈。 */
 function RugBase() {
+  const palette = useStylePalette();
   return (
     <group position={[0, 0.035, 0]}>
       <mesh scale={[1.8, 1, 1.25]} receiveShadow>

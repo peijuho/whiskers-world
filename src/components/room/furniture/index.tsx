@@ -1,7 +1,7 @@
 import type { ComponentType } from "react";
 import type { FurnitureType } from "@/game/furnitureCatalog";
 import { Bed } from "./Bed";
-import { CatBed, CatBowl, CatScratcher, CatSteps, CatTree } from "./Cat";
+import { CardboardBox, CatBed, CatBowl, CatScratcher, CatSteps, CatToy, CatTree } from "./Cat";
 import { Chair } from "./Chair";
 import { BigPlant, FloorLamp, RoundRug } from "./Decor";
 import { Desk } from "./Desk";
@@ -33,4 +33,6 @@ export const FURNITURE_MODELS: Readonly<Record<FurnitureType, ComponentType>> = 
   rug: Rug,
   "round-rug": RoundRug,
   "cat-bowl": CatBowl,
+  "cardboard-box": CardboardBox,
+  "cat-toy": CatToy,
 };

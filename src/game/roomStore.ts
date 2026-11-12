@@ -1,4 +1,7 @@
 import { useSyncExternalStore } from "react";
+import { loadSave, patchSave } from "./persistence";
+import { environmentActions } from "./environmentStore";
+import { hydrateSettingsFromSave } from "./settingsStore";
 import { FURNITURE_CATALOG, MAX_ITEMS, type FurnitureType } from "./furnitureCatalog";
 import {
   DEFAULT_ITEMS,
@@ -50,7 +53,6 @@ export interface RoomState {
 }
 
 const HISTORY_LIMIT = 50;
-const STORAGE_KEY = "whiskers-world:room:v1";
 
 const INITIAL_STATE: RoomState = {
   mode: "view",
@@ -97,15 +99,7 @@ function notice(text: string, tone: Notice["tone"]) {
 }
 
 function persist(items: readonly PlacedItemData[]): boolean {
-  try {
-    window.localStorage.setItem(
-      STORAGE_KEY,
-      JSON.stringify({ version: 1, items }),
-    );
-    return true;
-  } catch {
-    return false;
-  }
+  return patchSave({ items });
 }
 
 /** 提交一次可復原的變更 */
@@ -143,19 +137,16 @@ export const roomActions = {
   hydrate() {
     if (state.hydrated) return;
     let items: readonly PlacedItemData[] = DEFAULT_ITEMS;
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed: unknown = JSON.parse(raw);
-        if (typeof parsed === "object" && parsed !== null && "items" in parsed) {
-          const clean = sanitizeItems((parsed as { items: unknown }).items);
-          if (clean) items = clean;
-        }
-      }
-    } catch {
-      /* 存檔毀損：使用預設布置 */
-    }
+    const clean = sanitizeItems(loadSave().items);
+    if (clean) items = clean;
+    hydrateSettingsFromSave();
+    environmentActions.hydrate();
     set({ items, hydrated: true });
+  },
+
+  /** 顯示一則短提示（給場景內的互動使用） */
+  notify(text: string, tone: Notice["tone"] = "ok") {
+    notice(text, tone);
   },
 
   setMode(mode: Mode) {
@@ -179,10 +170,9 @@ export const roomActions = {
     roomActions.setMode(state.mode === "edit" ? "view" : "edit");
   },
 
-  /** 開啟家具面板時自動進入編輯模式 */
+  /** 開關裝飾面板 */
   togglePanel() {
-    if (state.panelOpen) set({ panelOpen: false });
-    else set({ panelOpen: true, mode: "edit" });
+    set({ panelOpen: !state.panelOpen });
   },
 
   closePanel() {
@@ -271,7 +261,7 @@ export const roomActions = {
       return;
     }
     const item: PlacedItemData = { id: nextId(state.items, type), type, rot: 0, ...spot };
-    set({ selectedId: item.id });
+    set({ selectedId: item.id, mode: "edit" });
     commit([...state.items, item]);
   },
 

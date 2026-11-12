@@ -8,28 +8,44 @@ import {
   MAX_ITEMS,
   type CategoryId,
 } from "@/game/furnitureCatalog";
+import { FURNITURE_STYLES, STYLE_AFFINITY, STYLE_IDS } from "@/game/furnitureStyles";
 import { roomActions, useRoomStore } from "@/game/roomStore";
+import { settingsActions, useSettings } from "@/game/settingsStore";
 
-export function FurniturePanel() {
+export function FurnitureTab() {
   const count = useRoomStore((s) => s.items.length);
   const [confirmReset, setConfirmReset] = useState(false);
   const [category, setCategory] = useState<CategoryId>("bed");
+  const style = useSettings((s) => s.furnitureStyle);
   const types = FURNITURE_TYPES.filter(
-    (t) => FURNITURE_CATALOG[t].category === category,
+    (t) =>
+      FURNITURE_CATALOG[t].category === category &&
+      (style === "classic" || STYLE_AFFINITY[t].includes(style)),
   );
 
   return (
-    <section
-      aria-label="家具清單"
-      className="paper-card pointer-events-auto w-72 max-w-[calc(100vw-2rem)] rounded-3xl p-4"
-    >
-      <div className="mb-3 flex items-baseline justify-between">
-        <h2 className="font-storybook text-lg font-semibold italic text-wood-deep">
-          家具
-        </h2>
+    <div>
+      <div className="mb-2 flex items-baseline justify-between">
+        <span className="text-xs text-ink/60">風格</span>
         <span className="text-xs text-ink/60">
           {count} / {MAX_ITEMS}
         </span>
+      </div>
+      <div className="mb-3 flex flex-wrap gap-1.5">
+        {STYLE_IDS.map((id) => (
+          <button
+            key={id}
+            type="button"
+            title={FURNITURE_STYLES[id].blurb}
+            aria-pressed={style === id}
+            onClick={() => settingsActions.update({ furnitureStyle: id })}
+            className={`rounded-full px-2.5 py-1 text-xs font-semibold transition ${
+              style === id ? "bg-wood-deep text-white" : "bg-cream/70 text-ink/70 hover:bg-white/70"
+            }`}
+          >
+            {FURNITURE_STYLES[id].label}
+          </button>
+        ))}
       </div>
 
       <div role="tablist" className="mb-3 flex flex-wrap gap-1.5">
@@ -51,6 +67,9 @@ export function FurniturePanel() {
         ))}
       </div>
 
+      {types.length === 0 && (
+        <p className="py-2 text-center text-xs text-ink/60">這個分類沒有適合此風格的家具</p>
+      )}
       <ul className="grid grid-cols-2 gap-2">
         {types.map((type) => {
           const def = FURNITURE_CATALOG[type];
@@ -88,6 +107,6 @@ export function FurniturePanel() {
       >
         {confirmReset ? "再按一次確認：恢復預設布置" : "恢復預設布置"}
       </button>
-    </section>
+    </div>
   );
 }
