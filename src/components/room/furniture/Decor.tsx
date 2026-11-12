@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { DoubleSide } from "three";
 import { MATTE } from "../palette";
+import { useLampGlow } from "../environment/useLampGlow";
 import { useStylePalette } from "../useStylePalette";
 
 const M = ({ c }: { c: string }) => <meshStandardMaterial color={c} {...MATTE} />;
@@ -8,6 +9,7 @@ const M = ({ c }: { c: string }) => <meshStandardMaterial color={c} {...MATTE} /
 /** 落地燈 0.4 × 0.4 */
 function FloorLampBase() {
   const palette = useStylePalette();
+  const glow = useLampGlow();
   return (
     <group>
       <mesh position={[0, 0.02, 0]} castShadow receiveShadow>
@@ -23,7 +25,7 @@ function FloorLampBase() {
         <meshStandardMaterial
           color={palette.cream}
           emissive="#ffd9a0"
-          emissiveIntensity={0.6}
+          emissiveIntensity={0.08 + 0.9 * glow}
           roughness={1}
           side={DoubleSide}
         />

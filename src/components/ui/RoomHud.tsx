@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { roomActions, useRoomStore } from "@/game/roomStore";
 import { DecorPanel } from "./DecorPanel";
+import { ClockBadge } from "./LightingTab";
 import { SelectionBar } from "./SelectionBar";
 import { Toast } from "./Toast";
 
@@ -99,6 +100,8 @@ export function RoomHud() {
           <p className="mt-0.5 flex items-center gap-1.5 text-sm text-sage-deep">
             <SparkleIcon />
             My Little Room
+            <span className="text-ink/30">·</span>
+            <ClockBadge />
           </p>
         </div>
 

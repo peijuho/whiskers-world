@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from "react";
 import { loadSave, patchSave } from "./persistence";
+import { environmentActions } from "./environmentStore";
 import { hydrateSettingsFromSave } from "./settingsStore";
 import { FURNITURE_CATALOG, MAX_ITEMS, type FurnitureType } from "./furnitureCatalog";
 import {
@@ -139,6 +140,7 @@ export const roomActions = {
     const clean = sanitizeItems(loadSave().items);
     if (clean) items = clean;
     hydrateSettingsFromSave();
+    environmentActions.hydrate();
     set({ items, hydrated: true });
   },
 

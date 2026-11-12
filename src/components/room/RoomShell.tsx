@@ -8,6 +8,7 @@ import {
 } from "@/game/roomTheme";
 import { useSettings } from "@/game/settingsStore";
 import { MATTE, palette } from "./palette";
+import { WindowView } from "./environment/WindowView";
 import { makeFloorTexture, makeWallTexture } from "./textures";
 
 /**
@@ -201,34 +202,15 @@ function WindowAssembly() {
       <mesh position={[WIN.cx, WIN.cy, -2.6]}>
         <planeGeometry args={[WIN.w, WIN.h]} />
         <meshBasicMaterial
-          color={palette.sky}
+          color="#ffffff"
           transparent
-          opacity={0.45}
+          opacity={0.14}
           toneMapped={false}
           depthWrite={false}
         />
       </mesh>
-      {/* 窗外天空與雲朵 */}
-      <mesh position={[WIN.cx, WIN.cy, -3.0]}>
-        <planeGeometry args={[2.6, 2.0]} />
-        <meshBasicMaterial color={palette.sky} toneMapped={false} />
-      </mesh>
-      {(
-        [
-          [0.9, 1.95, 0.32],
-          [1.2, 1.9, 0.24],
-          [2.0, 2.15, 0.28],
-        ] as const
-      ).map(([x, y, r], i) => (
-        <mesh
-          key={i}
-          position={[x, y, -2.95]}
-          scale={[r * 1.8, r, 0.1]}
-        >
-          <sphereGeometry args={[1, 16, 12]} />
-          <meshBasicMaterial color="#ffffff" toneMapped={false} />
-        </mesh>
-      ))}
+      {/* 窗外景色（天空、日月、雲）由 WindowView 依時間更新 */}
+      <WindowView />
       {/* 窗簾 */}
       {[WIN_L - 0.22, WIN_R + 0.22].map((x) => (
         <RoundedBox

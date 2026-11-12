@@ -1,4 +1,5 @@
 import { createStore } from "./createStore";
+import { isSpeed, type Speed } from "./gameClock";
 import { isStyleId, type StyleId } from "./furnitureStyles";
 import { loadSave, patchSave } from "./persistence";
 import {
@@ -21,7 +22,15 @@ export interface Settings {
   readonly floorStyle: FloorStyleId;
   readonly floorTone: number;
   readonly furnitureStyle: StyleId;
+  /** 遊戲時鐘與燈光偏好 */
+  readonly clockHour: number;
+  readonly clockPaused: boolean;
+  readonly clockSpeed: Speed;
+  readonly lampMode: LampMode;
 }
+
+export type LampMode = "auto" | "on" | "off";
+const LAMP_MODES: readonly LampMode[] = ["auto", "on", "off"];
 
 export const DEFAULT_SETTINGS: Settings = {
   wallColor: "sage-green",
@@ -30,6 +39,10 @@ export const DEFAULT_SETTINGS: Settings = {
   floorStyle: "wood",
   floorTone: 0,
   furnitureStyle: "classic",
+  clockHour: 9,
+  clockPaused: false,
+  clockSpeed: 1,
+  lampMode: "auto",
 };
 
 /** 驗證任意資料；缺漏或不合法的欄位退回預設值 */
@@ -48,6 +61,13 @@ export function sanitizeSettings(raw: unknown): Settings {
     floorStyle,
     floorTone: tone,
     furnitureStyle: isStyleId(r.furnitureStyle) ? r.furnitureStyle : DEFAULT_SETTINGS.furnitureStyle,
+    clockHour:
+      typeof r.clockHour === "number" && Number.isFinite(r.clockHour)
+        ? ((r.clockHour % 24) + 24) % 24
+        : DEFAULT_SETTINGS.clockHour,
+    clockPaused: typeof r.clockPaused === "boolean" ? r.clockPaused : DEFAULT_SETTINGS.clockPaused,
+    clockSpeed: isSpeed(r.clockSpeed) ? r.clockSpeed : DEFAULT_SETTINGS.clockSpeed,
+    lampMode: (LAMP_MODES as readonly unknown[]).includes(r.lampMode) ? (r.lampMode as LampMode) : DEFAULT_SETTINGS.lampMode,
   };
 }
 

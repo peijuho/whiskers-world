@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 import {
   FLOOR_STYLES,
   FLOOR_TONES,
@@ -9,49 +9,17 @@ import {
   WALL_STYLES,
 } from "@/game/roomTheme";
 import { settingsActions, useSettings } from "@/game/settingsStore";
+import { Chip, Label, Swatch } from "./controls";
 import { FurnitureTab } from "./FurniturePanel";
+import { LightingTab } from "./LightingTab";
 
 const TABS = [
   { id: "wall", label: "牆面" },
   { id: "floor", label: "地板" },
   { id: "furniture", label: "家具" },
+  { id: "light", label: "燈光" },
 ] as const;
 type TabId = (typeof TABS)[number]["id"];
-
-function Chip({ active, onClick, children }: { active: boolean; onClick: () => void; children: ReactNode }) {
-  return (
-    <button
-      type="button"
-      aria-pressed={active}
-      onClick={onClick}
-      className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
-        active ? "bg-sage text-white" : "bg-cream/70 text-ink/70 hover:bg-white/70"
-      }`}
-    >
-      {children}
-    </button>
-  );
-}
-
-function Swatch({ color, label, active, onClick }: { color: string; label: string; active: boolean; onClick: () => void }) {
-  return (
-    <button
-      type="button"
-      title={label}
-      aria-label={label}
-      aria-pressed={active}
-      onClick={onClick}
-      className={`h-8 w-8 rounded-full border-2 transition hover:scale-110 ${
-        active ? "border-wood-deep ring-2 ring-wood-deep/30" : "border-white/80"
-      }`}
-      style={{ background: color }}
-    />
-  );
-}
-
-const Label = ({ children }: { children: ReactNode }) => (
-  <p className="mb-1.5 mt-3 text-xs text-ink/60 first:mt-0">{children}</p>
-);
 
 function WallTab() {
   const s = useSettings((x) => x);
@@ -127,7 +95,7 @@ export function DecorPanel() {
             role="tab"
             aria-selected={tab === t.id}
             onClick={() => setTab(t.id)}
-            className={`flex-1 rounded-full py-1 text-sm font-semibold transition ${
+            className={`flex-1 rounded-full py-1 text-xs sm:text-sm font-semibold transition ${
               tab === t.id ? "bg-white text-wood-deep shadow-sm" : "text-ink/60"
             }`}
           >
@@ -138,6 +106,7 @@ export function DecorPanel() {
       {tab === "wall" && <WallTab />}
       {tab === "floor" && <FloorTab />}
       {tab === "furniture" && <FurnitureTab />}
+      {tab === "light" && <LightingTab />}
     </section>
   );
 }
