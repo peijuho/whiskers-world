@@ -1,12 +1,14 @@
 import { memo } from "react";
 import { RoundedBox } from "@react-three/drei";
-import { MATTE, palette } from "../palette";
+import { MATTE } from "../palette";
+import { useStylePalette } from "../useStylePalette";
 
 const SISAL = "#d9c19a";
 const M = ({ c }: { c: string }) => <meshStandardMaterial color={c} {...MATTE} />;
 
 /** 貓窩 0.7 × 0.7 */
 function CatBedBase() {
+  const palette = useStylePalette();
   return (
     <group>
       <mesh position={[0, 0.1, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow receiveShadow>
@@ -23,6 +25,7 @@ function CatBedBase() {
 
 /** 貓跳台 0.7 × 0.7，高約 1.7 */
 function CatTreeBase() {
+  const palette = useStylePalette();
   return (
     <group>
       <RoundedBox args={[0.7, 0.08, 0.7]} radius={0.035} position={[0, 0.04, 0]} castShadow receiveShadow>
@@ -62,6 +65,7 @@ function CatTreeBase() {
 
 /** 階梯跳台 1.2 × 0.5：三階木箱 */
 function CatStepsBase() {
+  const palette = useStylePalette();
   const steps = [
     { x: -0.4, h: 0.25, c: palette.woodLight },
     { x: 0, h: 0.5, c: palette.cream },
@@ -85,6 +89,7 @@ function CatStepsBase() {
 
 /** 貓抓柱 0.4 × 0.4 */
 function CatScratcherBase() {
+  const palette = useStylePalette();
   return (
     <group>
       <mesh position={[0, 0.025, 0]} castShadow receiveShadow>
@@ -105,6 +110,7 @@ function CatScratcherBase() {
 
 /** 貓碗 0.4 × 0.3 */
 function CatBowlBase() {
+  const palette = useStylePalette();
   return (
     <group>
       <RoundedBox args={[0.4, 0.012, 0.3]} radius={0.005} position={[0, 0.006, 0]} receiveShadow>

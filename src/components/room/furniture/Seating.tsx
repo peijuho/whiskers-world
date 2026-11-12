@@ -1,11 +1,13 @@
 import { memo } from "react";
 import { RoundedBox } from "@react-three/drei";
-import { MATTE, palette } from "../palette";
+import { MATTE } from "../palette";
+import { useStylePalette } from "../useStylePalette";
 
 const M = ({ c }: { c: string }) => <meshStandardMaterial color={c} {...MATTE} />;
 
 /** 沙發 1.9 × 0.9：椅背在 -z */
 function SofaBase() {
+  const palette = useStylePalette();
   return (
     <group>
       {[-0.8, 0.8].map((x) => (
@@ -39,6 +41,7 @@ function SofaBase() {
 
 /** 懶骨頭 0.9 × 0.9 */
 function BeanbagBase() {
+  const palette = useStylePalette();
   return (
     <group>
       <mesh position={[0, 0.3, 0]} scale={[0.45, 0.3, 0.45]} castShadow receiveShadow>
@@ -55,6 +58,7 @@ function BeanbagBase() {
 
 /** 圓凳 0.45 × 0.45 */
 function StoolBase() {
+  const palette = useStylePalette();
   return (
     <group>
       <mesh position={[0, 0.4, 0]} castShadow receiveShadow>

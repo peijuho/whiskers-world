@@ -1,11 +1,13 @@
 import { memo } from "react";
 import { DoubleSide } from "three";
-import { MATTE, palette } from "../palette";
+import { MATTE } from "../palette";
+import { useStylePalette } from "../useStylePalette";
 
 const M = ({ c }: { c: string }) => <meshStandardMaterial color={c} {...MATTE} />;
 
 /** 落地燈 0.4 × 0.4 */
 function FloorLampBase() {
+  const palette = useStylePalette();
   return (
     <group>
       <mesh position={[0, 0.02, 0]} castShadow receiveShadow>
@@ -38,6 +40,7 @@ const BIG_LEAVES = Array.from({ length: 12 }, (_, i) => ({
 
 /** 大型盆栽 0.7 × 0.7 */
 function BigPlantBase() {
+  const palette = useStylePalette();
   return (
     <group>
       <mesh position={[0, 0.26, 0]} castShadow receiveShadow>
@@ -67,6 +70,7 @@ function BigPlantBase() {
 
 /** 圓地毯 1.6 × 1.6 */
 function RoundRugBase() {
+  const palette = useStylePalette();
   return (
     <group position={[0, 0.035, 0]}>
       <mesh receiveShadow>

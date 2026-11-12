@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { roomActions, useRoomStore } from "@/game/roomStore";
-import { FurniturePanel } from "./FurniturePanel";
+import { DecorPanel } from "./DecorPanel";
 import { SelectionBar } from "./SelectionBar";
 import { Toast } from "./Toast";
 
@@ -175,7 +175,7 @@ export function RoomHud() {
         </p>
 
         <div className="flex flex-col items-end gap-3">
-          {panelOpen && <FurniturePanel />}
+          {panelOpen && <DecorPanel />}
           <button
             type="button"
             aria-expanded={panelOpen}
@@ -183,7 +183,7 @@ export function RoomHud() {
             className="paper-card pointer-events-auto inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-wood-deep transition hover:-translate-y-0.5 hover:bg-cream focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sage-deep"
           >
             <ChairIcon />
-            家具
+            裝飾
           </button>
         </div>
       </footer>

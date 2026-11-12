@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { RoundedBox } from "@react-three/drei";
-import { MATTE, palette } from "../palette";
+import { MATTE } from "../palette";
+import { useStylePalette } from "../useStylePalette";
 
 const LEG_POSITIONS: ReadonlyArray<readonly [number, number]> = [
   [-0.7, -0.32],
@@ -11,6 +12,7 @@ const LEG_POSITIONS: ReadonlyArray<readonly [number, number]> = [
 
 /** 小書桌，附書本、馬克杯與小檯燈。 */
 function DeskBase() {
+  const palette = useStylePalette();
   return (
     <group>
       <RoundedBox
