@@ -1,6 +1,6 @@
 import { memo, useMemo, type ReactNode } from "react";
 import type { ThreeElements } from "@react-three/fiber";
-import { CapsuleGeometry, SphereGeometry } from "three";
+import { CapsuleGeometry, CatmullRomCurve3, SphereGeometry, TubeGeometry, Vector3 } from "three";
 import { FUR_BLUE, FUR_WHITE, bodyWhite, haunchWhite, headWhite, legWhite, paintBicolor } from "./paint";
 
 /**
@@ -12,6 +12,14 @@ import { FUR_BLUE, FUR_WHITE, bodyWhite, haunchWhite, headWhite, legWhite, paint
  */
 
 const HEAD_R = [0.215, 0.19, 0.19] as const;
+
+/** 設計圖配色：粉紅的耳朵與鼻子、藍色項圈、金色鈴鐺、藍色眼睛 */
+const PINK = "#f2a9b8";
+const MOUTH = "#b9707c";
+const COLLAR = "#5f93cc";
+const BELL = "#e8b53f";
+const IRIS_OUTER = "#3566a8";
+const IRIS_INNER = "#6fb0ea";
 
 /** 單位球上的方向 → 頭部橢球表面座標 */
 function headSurface(ux: number, uy: number, uz: number, inset = 1): [number, number, number] {
@@ -39,26 +47,31 @@ function Matte({ color }: { color: string }) {
 }
 
 function Eye({ side }: { side: 1 | -1 }) {
-  const pos = headSurface(side * 0.46, 0.12, 0.86, 0.97);
+  const pos = headSurface(side * 0.56, 0.02, 0.83, 0.97);
   return (
-    <group name={side === 1 ? "eyeR" : "eyeL"} position={pos} rotation={[-0.04, side * 0.55, 0]}>
-      {/* 琥珀金虹膜 */}
-      <mesh scale={[1, 1.06, 0.55]}>
-        <sphereGeometry args={[0.064, 24, 16]} />
-        <meshStandardMaterial color="#e8aa35" emissive="#8a5200" emissiveIntensity={0.3} roughness={0.25} />
+    <group name={side === 1 ? "eyeR" : "eyeL"} position={pos} rotation={[-0.04, side * 0.5, 0]}>
+      {/* 深藍虹膜外圈 */}
+      <mesh scale={[1, 1.12, 0.5]}>
+        <sphereGeometry args={[0.07, 28, 18]} />
+        <meshStandardMaterial color={IRIS_OUTER} roughness={0.3} />
+      </mesh>
+      {/* 亮藍虹膜內圈 */}
+      <mesh position={[0, -0.006, 0.012]} scale={[1, 1.1, 0.5]}>
+        <sphereGeometry args={[0.057, 24, 16]} />
+        <meshStandardMaterial color={IRIS_INNER} roughness={0.28} />
       </mesh>
       {/* 瞳孔 */}
-      <mesh position={[0, 0, 0.022]} scale={[1.05, 1.1, 0.5]}>
-        <sphereGeometry args={[0.034, 18, 12]} />
-        <meshStandardMaterial color="#2a1f17" roughness={0.3} />
+      <mesh position={[0, 0.002, 0.024]} scale={[0.95, 1.15, 0.55]}>
+        <sphereGeometry args={[0.033, 20, 14]} />
+        <meshStandardMaterial color="#0b1020" roughness={0.3} />
       </mesh>
       {/* 閃亮的高光 */}
-      <mesh position={[0.022, 0.026, 0.04]}>
-        <sphereGeometry args={[0.014, 12, 8]} />
+      <mesh position={[-0.021, 0.028, 0.046]}>
+        <sphereGeometry args={[0.016, 14, 10]} />
         <meshBasicMaterial color="#ffffff" toneMapped={false} />
       </mesh>
-      <mesh position={[-0.016, -0.022, 0.036]}>
-        <sphereGeometry args={[0.007, 10, 8]} />
+      <mesh position={[0.022, -0.024, 0.042]}>
+        <sphereGeometry args={[0.008, 10, 8]} />
         <meshBasicMaterial color="#ffffff" toneMapped={false} />
       </mesh>
     </group>
@@ -75,7 +88,7 @@ function Ear({ side }: { side: 1 | -1 }) {
       </mesh>
       <mesh position={[0, -0.004, 0.026]} scale={[0.046, 0.056, 0.02]}>
         <sphereGeometry args={[1, 16, 10]} />
-        <Matte color="#d9b7b3" />
+        <Matte color={PINK} />
       </mesh>
     </group>
   );
@@ -115,17 +128,17 @@ function Face() {
       {/* 粉灰色小鼻子 */}
       <mesh position={nose} scale={[1.25, 0.85, 0.8]}>
         <sphereGeometry args={[0.022, 14, 10]} />
-        <Matte color="#c99fa0" />
+        <Matte color={PINK} />
       </mesh>
       {/* 甜甜的小嘴 */}
       <mesh position={[0, nose[1] - 0.02, nose[2] - 0.004]}>
         <cylinderGeometry args={[0.0035, 0.0035, 0.024, 6]} />
-        <Matte color="#b58585" />
+        <Matte color={MOUTH} />
       </mesh>
       {([1, -1] as const).map((s) => (
         <mesh key={s} position={[s * 0.026, mouthY, mouthZ]} rotation={[0, 0, Math.PI]}>
           <torusGeometry args={[0.026, 0.0035, 6, 14, Math.PI]} />
-          <Matte color="#b58585" />
+          <Matte color={MOUTH} />
         </mesh>
       ))}
       <Whiskers side={1} />
@@ -156,10 +169,10 @@ function Leg({ name, position }: LegProps) {
 }
 
 const TAIL_SEGMENTS = [
-  { r: 0.058, rot: -1.15 },
-  { r: 0.056, rot: 0.5 },
-  { r: 0.053, rot: 0.5 },
-  { r: 0.048, rot: 0.5 },
+  { r: 0.068, rot: -1.15 },
+  { r: 0.067, rot: 0.5 },
+  { r: 0.065, rot: 0.5 },
+  { r: 0.06, rot: 0.5 },
 ] as const;
 const TAIL_LEN = 0.1;
 
@@ -179,6 +192,39 @@ function Tail({ index = 0 }: { index?: number }): ReactNode {
         <Fur color={FUR_BLUE} />
       </mesh>
       <Tail index={index + 1} />
+    </group>
+  );
+}
+
+/** 藍色項圈與金色鈴鐺：項圈是一圈貼著胸口的橢圓管，前低後高 */
+function Collar() {
+  const geo = useMemo(() => {
+    const n = 20;
+    const points: Vector3[] = [];
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2;
+      const z = Math.cos(a) * 0.262;
+      const x = Math.sin(a) * 0.182;
+      points.push(new Vector3(x, 0.335 - 0.016 * (z / 0.262), z));
+    }
+    return new TubeGeometry(new CatmullRomCurve3(points, true), 64, 0.014, 10, true);
+  }, []);
+  return (
+    <group name="collar">
+      <mesh geometry={geo} castShadow>
+        <Matte color={COLLAR} />
+      </mesh>
+      <group name="bell" position={[0, 0.294, 0.274]}>
+        <mesh castShadow>
+          <sphereGeometry args={[0.025, 20, 14]} />
+          <meshStandardMaterial color={BELL} roughness={0.35} metalness={0.5} />
+        </mesh>
+        {/* 鈴鐺下方的小細縫 */}
+        <mesh position={[0, -0.006, 0.022]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.002, 0.002, 0.03, 6]} />
+          <Matte color="#3a2a1a" />
+        </mesh>
+      </group>
     </group>
   );
 }
@@ -206,6 +252,7 @@ function KittenBase(props: ThreeElements["group"]) {
         <Leg name="legBL" position={[-0.13, 0.2, -0.15]} />
 
         <Tail />
+        <Collar />
 
         <group name="head" position={[0, 0.5, 0.17]}>
           <mesh geometry={headGeo} scale={[...HEAD_R]} castShadow receiveShadow>
