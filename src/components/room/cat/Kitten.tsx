@@ -1,7 +1,7 @@
 import { memo, useMemo, type ReactNode } from "react";
 import type { ThreeElements } from "@react-three/fiber";
-import { CapsuleGeometry, CatmullRomCurve3, SphereGeometry, TubeGeometry, Vector3 } from "three";
-import { FUR_BLUE, FUR_WHITE, bodyWhite, haunchWhite, headWhite, legWhite, paintBicolor } from "./paint";
+import { BufferGeometry, CapsuleGeometry, CatmullRomCurve3, LatheGeometry, SphereGeometry, SplineCurve, TubeGeometry, Vector2, Vector3 } from "three";
+import { FUR_BLUE, FUR_WHITE, bodyWhite, headWhite, legWhite, paintBicolor } from "./paint";
 
 /**
  * 藍白雙色英國短毛貓幼貓（程序化 3D 模型，無外部資源）。
@@ -47,7 +47,7 @@ function Matte({ color }: { color: string }) {
 }
 
 function Eye({ side }: { side: 1 | -1 }) {
-  const pos = headSurface(side * 0.56, 0.02, 0.83, 0.97);
+  const pos = headSurface(side * 0.42, 0.02, 0.87, 0.97);
   return (
     <group name={side === 1 ? "eyeR" : "eyeL"} position={pos} rotation={[-0.04, side * 0.5, 0]}>
       {/* 深藍虹膜外圈 */}
@@ -150,13 +150,33 @@ function Face() {
 interface LegProps {
   readonly name: string;
   readonly position: [number, number, number];
+  /** 後腿：大腿到腳踝是一條平滑漸細的曲線，而不是球 + 圓柱 */
+  readonly hind?: boolean;
 }
 
-function Leg({ name, position }: LegProps) {
-  const geo = useMemo(() => paintBicolor(new CapsuleGeometry(0.05, 0.1, 4, 12), legWhite), []);
+/** 後腿輪廓（旋轉成車削體）：粗大腿 → 微微的膝彎 → 細腳踝，座標為腿節點本地 */
+function hindLegGeometry(): BufferGeometry {
+  const curve = new SplineCurve([
+    new Vector2(0.0, 0.12),
+    new Vector2(0.08, 0.1),
+    new Vector2(0.11, 0.04),
+    new Vector2(0.1, -0.03),
+    new Vector2(0.077, -0.09),
+    new Vector2(0.055, -0.14),
+    new Vector2(0.05, -0.17),
+    new Vector2(0.0, -0.185),
+  ]);
+  return paintBicolor(new LatheGeometry(curve.getPoints(28), 20), legWhite);
+}
+
+function Leg({ name, position, hind = false }: LegProps) {
+  const geo = useMemo(
+    () => (hind ? hindLegGeometry() : paintBicolor(new CapsuleGeometry(0.05, 0.1, 4, 12), legWhite)),
+    [hind],
+  );
   return (
     <group name={name} position={position}>
-      <mesh geometry={geo} position={[0, -0.075, 0]} castShadow>
+      <mesh geometry={geo} position={hind ? [0, -0.02, 0] : [0, -0.075, 0]} scale={hind ? [1, 1, 1.25] : 1} castShadow>
         <Fur painted />
       </mesh>
       {/* 圓滾滾的白色小腳掌 */}
@@ -202,10 +222,10 @@ function Collar() {
     const n = 20;
     const points: Vector3[] = [];
     for (let i = 0; i < n; i++) {
-      const a = (i / n) * Math.PI * 2;
-      const z = Math.cos(a) * 0.262;
-      const x = Math.sin(a) * 0.182;
-      points.push(new Vector3(x, 0.335 - 0.016 * (z / 0.262), z));
+      const t = (i / n) * Math.PI * 2;
+      const c = Math.cos(t);
+      // 圍在脖子上：胸前最低（z 大），後頸最高，左右略寬於身體
+      points.push(new Vector3(Math.sin(t) * 0.17, 0.37 - c * 0.07, 0.158 + c * 0.107));
     }
     return new TubeGeometry(new CatmullRomCurve3(points, true), 64, 0.014, 10, true);
   }, []);
@@ -214,7 +234,7 @@ function Collar() {
       <mesh geometry={geo} castShadow>
         <Matte color={COLLAR} />
       </mesh>
-      <group name="bell" position={[0, 0.294, 0.274]}>
+      <group name="bell" position={[0, 0.286, 0.282]}>
         <mesh castShadow>
           <sphereGeometry args={[0.025, 20, 14]} />
           <meshStandardMaterial color={BELL} roughness={0.35} metalness={0.5} />
@@ -232,24 +252,18 @@ function Collar() {
 function KittenBase(props: ThreeElements["group"]) {
   const headGeo = useMemo(() => paintBicolor(new SphereGeometry(1, 40, 28), headWhite), []);
   const bodyGeo = useMemo(() => paintBicolor(new SphereGeometry(1, 36, 24), bodyWhite), []);
-  const haunchGeo = useMemo(() => paintBicolor(new SphereGeometry(1, 24, 16), haunchWhite), []);
-
+  
   return (
     <group name="kitten" {...props}>
       <group name="spine">
         <mesh name="body" geometry={bodyGeo} position={[0, 0.27, 0]} scale={[0.19, 0.18, 0.27]} castShadow receiveShadow>
           <Fur painted />
         </mesh>
-        {([1, -1] as const).map((s) => (
-          <mesh key={s} name="haunch" geometry={haunchGeo} position={[s * 0.15, 0.22, -0.13]} scale={[0.1, 0.11, 0.12]} castShadow>
-            <Fur painted />
-          </mesh>
-        ))}
 
         <Leg name="legFR" position={[0.1, 0.2, 0.15]} />
         <Leg name="legFL" position={[-0.1, 0.2, 0.15]} />
-        <Leg name="legBR" position={[0.13, 0.2, -0.15]} />
-        <Leg name="legBL" position={[-0.13, 0.2, -0.15]} />
+        <Leg name="legBR" position={[0.13, 0.2, -0.15]} hind />
+        <Leg name="legBL" position={[-0.13, 0.2, -0.15]} hind />
 
         <Tail />
         <Collar />
