@@ -1,6 +1,6 @@
 import { memo, useMemo, type ReactNode } from "react";
 import type { ThreeElements } from "@react-three/fiber";
-import { BufferGeometry, CapsuleGeometry, CatmullRomCurve3, LatheGeometry, SphereGeometry, SplineCurve, TubeGeometry, Vector2, Vector3 } from "three";
+import { BufferGeometry, CatmullRomCurve3, LatheGeometry, SphereGeometry, SplineCurve, TubeGeometry, Vector2, Vector3 } from "three";
 import { FUR_BLUE, FUR_WHITE, bodyWhite, headWhite, legWhite, paintBicolor } from "./paint";
 
 /**
@@ -46,34 +46,25 @@ function Matte({ color }: { color: string }) {
   return <meshStandardMaterial color={color} roughness={0.95} metalness={0} />;
 }
 
+/** 平面的眼睛：一層層疊起來的扁圓片（像繪本貼紙），不是立體球 */
+function EyeDisc({ rx, ry, z, x = 0, y = 0, color, glow = 0.35 }: { rx: number; ry: number; z: number; x?: number; y?: number; color: string; glow?: number }) {
+  return (
+    <mesh position={[x, y, z]} scale={[rx, ry, 1]}>
+      <circleGeometry args={[1, 36]} />
+      <meshStandardMaterial color={color} emissive={color} emissiveIntensity={glow} roughness={0.7} polygonOffset polygonOffsetFactor={-1} />
+    </mesh>
+  );
+}
+
 function Eye({ side }: { side: 1 | -1 }) {
-  const pos = headSurface(side * 0.42, 0.02, 0.87, 0.97);
+  const pos = headSurface(side * 0.42, 0.02, 0.87, 1.0);
   return (
     <group name={side === 1 ? "eyeR" : "eyeL"} position={pos} rotation={[-0.04, side * 0.5, 0]}>
-      {/* 深藍虹膜外圈 */}
-      <mesh scale={[1, 1.12, 0.5]}>
-        <sphereGeometry args={[0.07, 28, 18]} />
-        <meshStandardMaterial color={IRIS_OUTER} roughness={0.3} />
-      </mesh>
-      {/* 亮藍虹膜內圈 */}
-      <mesh position={[0, -0.006, 0.012]} scale={[1, 1.1, 0.5]}>
-        <sphereGeometry args={[0.057, 24, 16]} />
-        <meshStandardMaterial color={IRIS_INNER} roughness={0.28} />
-      </mesh>
-      {/* 瞳孔 */}
-      <mesh position={[0, 0.002, 0.024]} scale={[0.95, 1.15, 0.55]}>
-        <sphereGeometry args={[0.033, 20, 14]} />
-        <meshStandardMaterial color="#0b1020" roughness={0.3} />
-      </mesh>
-      {/* 閃亮的高光 */}
-      <mesh position={[-0.021, 0.028, 0.046]}>
-        <sphereGeometry args={[0.016, 14, 10]} />
-        <meshBasicMaterial color="#ffffff" toneMapped={false} />
-      </mesh>
-      <mesh position={[0.022, -0.024, 0.042]}>
-        <sphereGeometry args={[0.008, 10, 8]} />
-        <meshBasicMaterial color="#ffffff" toneMapped={false} />
-      </mesh>
+      <EyeDisc rx={0.05} ry={0.058} z={0.008} color={IRIS_OUTER} />
+      <EyeDisc rx={0.04} ry={0.047} y={-0.003} z={0.0095} color={IRIS_INNER} />
+      <EyeDisc rx={0.022} ry={0.032} y={0.0} z={0.011} color="#0b1020" glow={0} />
+      <EyeDisc rx={0.011} ry={0.011} x={-0.015} y={0.02} z={0.0125} color="#ffffff" glow={1} />
+      <EyeDisc rx={0.0055} ry={0.0055} x={0.016} y={-0.017} z={0.0125} color="#ffffff" glow={1} />
     </group>
   );
 }
@@ -150,33 +141,28 @@ function Face() {
 interface LegProps {
   readonly name: string;
   readonly position: [number, number, number];
-  /** 後腿：大腿到腳踝是一條平滑漸細的曲線，而不是球 + 圓柱 */
-  readonly hind?: boolean;
 }
 
-/** 後腿輪廓（旋轉成車削體）：粗大腿 → 微微的膝彎 → 細腳踝，座標為腿節點本地 */
-function hindLegGeometry(): BufferGeometry {
+/** 四條腿共用的輪廓（前腿與後腿粗細取平均）：大腿微粗 → 細腳踝，座標為腿節點本地 */
+function legGeometry(): BufferGeometry {
   const curve = new SplineCurve([
-    new Vector2(0.0, 0.12),
-    new Vector2(0.08, 0.1),
-    new Vector2(0.11, 0.04),
-    new Vector2(0.1, -0.03),
-    new Vector2(0.077, -0.09),
-    new Vector2(0.055, -0.14),
+    new Vector2(0.0, 0.1),
+    new Vector2(0.06, 0.085),
+    new Vector2(0.082, 0.03),
+    new Vector2(0.075, -0.03),
+    new Vector2(0.06, -0.09),
+    new Vector2(0.052, -0.14),
     new Vector2(0.05, -0.17),
     new Vector2(0.0, -0.185),
   ]);
   return paintBicolor(new LatheGeometry(curve.getPoints(28), 20), legWhite);
 }
 
-function Leg({ name, position, hind = false }: LegProps) {
-  const geo = useMemo(
-    () => (hind ? hindLegGeometry() : paintBicolor(new CapsuleGeometry(0.05, 0.1, 4, 12), legWhite)),
-    [hind],
-  );
+function Leg({ name, position }: LegProps) {
+  const geo = useMemo(() => legGeometry(), []);
   return (
     <group name={name} position={position}>
-      <mesh geometry={geo} position={hind ? [0, -0.02, 0] : [0, -0.075, 0]} scale={hind ? [1, 1, 1.25] : 1} castShadow>
+      <mesh geometry={geo} position={[0, -0.02, 0]} scale={[1, 1, 1.1]} castShadow>
         <Fur painted />
       </mesh>
       {/* 圓滾滾的白色小腳掌 */}
@@ -262,8 +248,8 @@ function KittenBase(props: ThreeElements["group"]) {
 
         <Leg name="legFR" position={[0.1, 0.2, 0.15]} />
         <Leg name="legFL" position={[-0.1, 0.2, 0.15]} />
-        <Leg name="legBR" position={[0.13, 0.2, -0.15]} hind />
-        <Leg name="legBL" position={[-0.13, 0.2, -0.15]} hind />
+        <Leg name="legBR" position={[0.13, 0.2, -0.15]} />
+        <Leg name="legBL" position={[-0.13, 0.2, -0.15]} />
 
         <Tail />
         <Collar />
