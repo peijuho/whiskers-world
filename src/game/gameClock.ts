@@ -1,4 +1,4 @@
-/** 遊戲時鐘的設定與工具（與現實時間脫鉤，可由玩家控制）。 */
+/** 遊戲時鐘的設定與工具（預設與現實時間同速，玩家可加速、暫停或手動調整）。 */
 
 export type PeriodId = "morning" | "afternoon" | "sunset" | "evening" | "night";
 
@@ -30,13 +30,14 @@ export function periodOf(hour: number, cycle = DEFAULT_CYCLE): PeriodId {
   return "night";
 }
 
-/** 速度倍率：1x = 每現實 1 秒經過遊戲 1 分鐘（一天約 24 分鐘） */
-export const SPEEDS = [0.5, 1, 2, 4, 12] as const;
+/** 速度倍率：1x = 與現實時間相同（現實 1 分鐘 = 遊戲 1 分鐘），其餘為加速倍率 */
+export const SPEEDS = [1, 10, 60, 360] as const;
 export type Speed = (typeof SPEEDS)[number];
 export const isSpeed = (v: unknown): v is Speed =>
   typeof v === "number" && (SPEEDS as readonly number[]).includes(v);
 
-export const GAME_MINUTES_PER_SECOND = 1;
+/** 1x 時每現實 1 秒經過的遊戲分鐘數（即現實時間：1/60 分鐘） */
+export const GAME_MINUTES_PER_SECOND = 1 / 60;
 
 export function formatTime(hour: number): string {
   const total = Math.floor((((hour % 24) + 24) % 24) * 60);
