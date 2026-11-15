@@ -1,7 +1,7 @@
 import { BufferGeometry, Color, Float32BufferAttribute } from "three";
 
 /** 英國短毛貓的藍灰色與純白色 */
-export const FUR_BLUE = "#6a84a6";
+export const FUR_BLUE = "#a4adc1";
 export const FUR_WHITE = "#fffdf8";
 
 const BLUE = new Color(FUR_BLUE);
