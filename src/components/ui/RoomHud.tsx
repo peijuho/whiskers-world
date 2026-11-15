@@ -2,7 +2,9 @@
 
 import { useEffect } from "react";
 import { roomActions, useRoomStore } from "@/game/roomStore";
-import { FurniturePanel } from "./FurniturePanel";
+import { DecorPanel } from "./DecorPanel";
+import { catStatus } from "@/game/catRuntime";
+import { ClockBadge } from "./LightingTab";
 import { SelectionBar } from "./SelectionBar";
 import { Toast } from "./Toast";
 
@@ -54,6 +56,19 @@ function UndoIcon({ flip = false }: { flip?: boolean }) {
   );
 }
 
+/** 小貓目前在做什麼（只在行為改變時更新） */
+function CatBadge() {
+  const label = catStatus.use((s) => s.label);
+  return (
+    <p
+      data-testid="cat-status"
+      className="paper-card mt-2 inline-block rounded-full px-3.5 py-1 text-xs text-wood-deep"
+    >
+      <span className="font-semibold text-sage-deep">小貓</span> {label}
+    </p>
+  );
+}
+
 function useEditShortcuts() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -92,6 +107,7 @@ export function RoomHud() {
   return (
     <div className="pointer-events-none absolute inset-0 flex flex-col justify-between p-4 sm:p-6">
       <header className="flex items-start justify-between gap-3">
+        <div>
         <div className="paper-card rounded-3xl px-5 py-3">
           <h1 className="font-storybook text-2xl font-semibold italic tracking-wide text-wood-deep sm:text-3xl">
             Whisker&apos;s World
@@ -99,7 +115,11 @@ export function RoomHud() {
           <p className="mt-0.5 flex items-center gap-1.5 text-sm text-sage-deep">
             <SparkleIcon />
             My Little Room
+            <span className="text-ink/30">·</span>
+            <ClockBadge />
           </p>
+        </div>
+        <CatBadge />
         </div>
 
         <div className="flex items-center gap-2">
@@ -175,7 +195,7 @@ export function RoomHud() {
         </p>
 
         <div className="flex flex-col items-end gap-3">
-          {panelOpen && <FurniturePanel />}
+          {panelOpen && <DecorPanel />}
           <button
             type="button"
             aria-expanded={panelOpen}
@@ -183,7 +203,7 @@ export function RoomHud() {
             className="paper-card pointer-events-auto inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-wood-deep transition hover:-translate-y-0.5 hover:bg-cream focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sage-deep"
           >
             <ChairIcon />
-            家具
+            裝飾
           </button>
         </div>
       </footer>

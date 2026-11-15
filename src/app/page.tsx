@@ -7,7 +7,7 @@ export default function Home() {
       className="relative h-dvh min-h-[480px] w-full overflow-hidden"
       style={{
         background:
-          "radial-gradient(ellipse at 50% 35%, #fbf6ea 0%, #f1e8d3 55%, #dfe6e4 100%)",
+          "radial-gradient(ellipse at 50% 35%, var(--bg-center, #fbf6ea) 0%, color-mix(in srgb, var(--bg-center, #f1e8d3) 55%, var(--bg-edge, #dfe6e4)) 55%, var(--bg-edge, #dfe6e4) 100%)",
       }}
     >
       <RoomStage />

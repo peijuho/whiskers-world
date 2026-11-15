@@ -145,6 +145,8 @@ export const DEFAULT_ITEMS: readonly PlacedItemData[] = [
   { id: "desk-1", type: "desk", x: 1.5, z: -2.1, rot: 0 },
   { id: "chair-1", type: "chair", x: 1.5, z: -1.35, rot: 0 },
   { id: "plant-1", type: "plant", x: -0.25, z: -2.25, rot: 0 },
+  { id: "cat-bed-1", type: "cat-bed", x: 2.4, z: 0.4, rot: 0 },
+  { id: "cat-toy-1", type: "cat-toy", x: -0.75, z: 1.5, rot: 0 },
 ];
 
 /** 驗證並清理從 localStorage 讀到的資料；格式不符回傳 null */

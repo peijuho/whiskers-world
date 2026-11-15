@@ -1,5 +1,6 @@
 import { memo } from "react";
-import { MATTE, palette } from "../palette";
+import { MATTE } from "../palette";
+import { useStylePalette } from "../useStylePalette";
 
 interface Leaf {
   readonly angle: number;
@@ -18,6 +19,7 @@ const LEAVES: readonly Leaf[] = Array.from({ length: 9 }, (_, i) => ({
 
 /** 一盆圓潤的盆栽，可自由擺放。 */
 function PlantBase() {
+  const palette = useStylePalette();
   return (
     <group>
       <mesh position={[0, 0.19, 0]} castShadow receiveShadow>
