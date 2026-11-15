@@ -69,7 +69,7 @@ export function LightingTab() {
         </Chip>
         {SPEEDS.map((s) => (
           <Chip key={s} active={speed === s} onClick={() => environmentActions.setSpeed(s)}>
-            {s}x
+            {s === 1 ? "現實速度" : `${s}x`}
           </Chip>
         ))}
       </div>

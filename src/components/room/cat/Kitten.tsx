@@ -89,10 +89,10 @@ function Ear({ side }: { side: 1 | -1 }) {
   const geo = useMemo(() => earGeometry(), []);
   return (
     <group name={side === 1 ? "earR" : "earL"} position={pos} rotation={[-0.1, side * 0.25, -side * 0.45]}>
-      <mesh geometry={geo} scale={[0.88, 0.85, 0.5]} castShadow>
+      <mesh geometry={geo} scale={[1.2, 1.15, 0.62]} castShadow>
         <Fur color={FUR_BLUE} />
       </mesh>
-      <mesh geometry={geo} position={[0, -0.01, 0.014]} scale={[0.55, 0.6, 0.36]}>
+      <mesh geometry={geo} position={[0, -0.012, 0.018]} scale={[0.66, 0.7, 0.44]}>
         <Matte color={PINK} />
       </mesh>
     </group>
