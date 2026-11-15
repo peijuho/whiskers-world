@@ -275,9 +275,11 @@ function KittenBase(props: ThreeElements["group"]) {
         <Leg name="legBL" position={[-0.103, 0.2, -0.14]} />
 
         <Tail />
-        <Collar />
-
         <group name="head" position={[0, 0.5, 0.17]}>
+          {/* 項圈掛在頭部節點上（座標抵銷頭的位置），坐下或低頭時才不會被身體的傾斜帶歪、戳到臉前 */}
+          <group position={[0, -0.5, -0.17]}>
+            <Collar />
+          </group>
           <mesh geometry={headGeo} scale={[...HEAD_R]} castShadow receiveShadow>
             <Fur painted />
           </mesh>
