@@ -69,13 +69,15 @@ function Eye({ side }: { side: 1 | -1 }) {
   );
 }
 
-/** 尖耳朵輪廓（旋轉後壓扁）：尖端收成一點，兩側微微外凸 */
+/** 尖耳朵輪廓（旋轉後壓扁）：整體是尖的，但頂端倒成小圓角 */
 function earGeometry(): BufferGeometry {
   const pts = [
-    new Vector2(0.0, 0.115),
-    new Vector2(0.012, 0.09),
-    new Vector2(0.033, 0.05),
-    new Vector2(0.058, 0.0),
+    new Vector2(0.0, 0.1),
+    new Vector2(0.01, 0.098),
+    new Vector2(0.02, 0.09),
+    new Vector2(0.03, 0.074),
+    new Vector2(0.045, 0.042),
+    new Vector2(0.062, 0.0),
     new Vector2(0.074, -0.04),
     new Vector2(0.0, -0.05),
   ];
@@ -174,7 +176,7 @@ function Leg({ name, position }: LegProps) {
   const geo = useMemo(() => legGeometry(), []);
   return (
     <group name={name} position={position}>
-      <mesh geometry={geo} position={[0, -0.02, 0]} scale={[1, 1, 1.1]} castShadow>
+      <mesh geometry={geo} position={[0, -0.02, 0]} scale={[0.92, 1, 1.1]} castShadow>
         <Fur painted />
       </mesh>
       {/* 圓滾滾的白色小腳掌 */}
@@ -269,8 +271,8 @@ function KittenBase(props: ThreeElements["group"]) {
 
         <Leg name="legFR" position={[0.1, 0.2, 0.15]} />
         <Leg name="legFL" position={[-0.1, 0.2, 0.15]} />
-        <Leg name="legBR" position={[0.13, 0.2, -0.15]} />
-        <Leg name="legBL" position={[-0.13, 0.2, -0.15]} />
+        <Leg name="legBR" position={[0.103, 0.2, -0.14]} />
+        <Leg name="legBL" position={[-0.103, 0.2, -0.14]} />
 
         <Tail />
         <Collar />
