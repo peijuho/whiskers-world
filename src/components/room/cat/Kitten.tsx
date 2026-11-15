@@ -69,16 +69,28 @@ function Eye({ side }: { side: 1 | -1 }) {
   );
 }
 
+/** 尖耳朵輪廓（旋轉後壓扁）：尖端收成一點，兩側微微外凸 */
+function earGeometry(): BufferGeometry {
+  const pts = [
+    new Vector2(0.0, 0.115),
+    new Vector2(0.012, 0.09),
+    new Vector2(0.033, 0.05),
+    new Vector2(0.058, 0.0),
+    new Vector2(0.074, -0.04),
+    new Vector2(0.0, -0.05),
+  ];
+  return new LatheGeometry(pts, 24);
+}
+
 function Ear({ side }: { side: 1 | -1 }) {
   const pos = headSurface(side * 0.6, 0.82, -0.02, 0.98);
+  const geo = useMemo(() => earGeometry(), []);
   return (
     <group name={side === 1 ? "earR" : "earL"} position={pos} rotation={[-0.1, side * 0.25, -side * 0.45]}>
-      <mesh scale={[0.075, 0.088, 0.042]} castShadow>
-        <sphereGeometry args={[1, 20, 14]} />
+      <mesh geometry={geo} scale={[0.88, 0.85, 0.5]} castShadow>
         <Fur color={FUR_BLUE} />
       </mesh>
-      <mesh position={[0, -0.004, 0.026]} scale={[0.046, 0.056, 0.02]}>
-        <sphereGeometry args={[1, 16, 10]} />
+      <mesh geometry={geo} position={[0, -0.01, 0.014]} scale={[0.55, 0.6, 0.36]}>
         <Matte color={PINK} />
       </mesh>
     </group>
@@ -174,29 +186,38 @@ function Leg({ name, position }: LegProps) {
   );
 }
 
+/** r：該節根部半徑；尾巴由粗漸細，最後一節收成圓圓的尾尖 */
 const TAIL_SEGMENTS = [
   { r: 0.068, rot: -1.15 },
-  { r: 0.067, rot: 0.5 },
-  { r: 0.065, rot: 0.5 },
-  { r: 0.06, rot: 0.5 },
+  { r: 0.064, rot: 0.42 },
+  { r: 0.059, rot: 0.42 },
+  { r: 0.053, rot: 0.42 },
 ] as const;
+const TAIL_TIP_R = 0.046;
 const TAIL_LEN = 0.1;
 
-/** 粗厚蓬鬆的藍灰色尾巴：四節巢狀關節，自然向上彎 */
+/** 蓬鬆的藍灰色尾巴：四節巢狀關節（動畫用），每節是連續漸細的圓錐，接頭用同半徑球體抹平 */
 function Tail({ index = 0 }: { index?: number }): ReactNode {
   const seg = TAIL_SEGMENTS[index];
   if (!seg) return null;
+  const next = TAIL_SEGMENTS[index + 1]?.r ?? TAIL_TIP_R;
   return (
     <group name={`tail${index + 1}`} position={index === 0 ? [0, 0.3, -0.25] : [0, TAIL_LEN, 0]} rotation={[seg.rot, 0, 0]}>
       <mesh position={[0, TAIL_LEN / 2, 0]} castShadow>
-        <capsuleGeometry args={[seg.r, TAIL_LEN, 4, 12]} />
+        <cylinderGeometry args={[next, seg.r, TAIL_LEN, 20, 1]} />
         <Fur color={FUR_BLUE} />
       </mesh>
-      {/* 關節處的圓球，讓尾巴彎曲處保持平滑 */}
+      {/* 關節球：半徑與該節根部相同，彎曲處不會冒出一圈 */}
       <mesh castShadow>
-        <sphereGeometry args={[seg.r * 1.02, 16, 12]} />
+        <sphereGeometry args={[seg.r, 20, 14]} />
         <Fur color={FUR_BLUE} />
       </mesh>
+      {index === TAIL_SEGMENTS.length - 1 && (
+        <mesh position={[0, TAIL_LEN, 0]} castShadow>
+          <sphereGeometry args={[TAIL_TIP_R, 20, 14]} />
+          <Fur color={FUR_BLUE} />
+        </mesh>
+      )}
       <Tail index={index + 1} />
     </group>
   );
